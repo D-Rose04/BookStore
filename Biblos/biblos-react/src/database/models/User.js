@@ -1,8 +1,8 @@
 class User {
-    id;
-    name;
-    email;
-    password;
+    _id;
+    _name;
+    _email;
+    _password;
     _isAdmin;
 
     constructor() {
