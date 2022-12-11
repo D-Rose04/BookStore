@@ -3,6 +3,7 @@ class User {
     name;
     email;
     password;
+    _isAdmin;
 
     constructor() {
     }
