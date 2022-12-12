@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useFireContext } from '../firebase/context/context';
 import './css/login.css';
+import {isValidEmail} from "../utils/validations";
+import {showErrorAuth} from "../firebase/utils/accessValidations";
 
 export default function Login() {
     const { SignIn } = useFireContext();
@@ -17,8 +19,23 @@ export default function Login() {
 
     const handleSignIn = async (event) => {
         event.preventDefault();
-        console.log(userInfo)
-        await SignIn(userInfo.email, userInfo.password);
+        // Ojo con esto
+        console.log(userInfo);
+        debugger;
+        //Agregue esto para validar, por si acaso
+        // Por dentro ya hace un alert
+        if (!isValidEmail(userInfo.email)) {
+            return;
+        }
+        // Atrape en caso de que pase el error de no existente
+
+        try {
+            await SignIn(userInfo.email, userInfo.password);
+        } catch (e) {
+            debugger;
+            showErrorAuth(e);
+            console.log(e);
+        }
     }
 
     return (

@@ -17,7 +17,7 @@ import {
 // label Libro class document
 import Libro from "../../database/models/Libro";
 // label validations for the class
-import * as validator from '../../database/validations';
+import * as validator from '../../utils/validations';
 
 // label Fields if the database
 /**Name of the collection*/
