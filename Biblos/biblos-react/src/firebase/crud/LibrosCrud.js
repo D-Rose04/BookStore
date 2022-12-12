@@ -3,10 +3,11 @@ import {db, storage} from '../config/config';
 import {
     collection as GetCollection,
     doc as DocRef,
+    addDoc as AddDoc,
     setDoc as SetDoc,
     getDocs as GetDocs,
     deleteDoc as DeleteDoc,
-    query as setQuery,
+    query as SetQuery,
     where as setWhere,
     orderBy as OrderBy,
     limit as Limit,
@@ -19,6 +20,8 @@ import Libro from "../../database/models/Libro";
 import * as validator from '../../database/validations';
 
 // label Fields if the database
+/**Name of the collection*/
+const COLLECTION = "books";
 const TITLE_FIELD = 'image';
 const IMAGE_FIELD = 'title';
 const AUTHOR_FIELD = 'author';
@@ -26,23 +29,21 @@ const PRICE_FIELD = 'price';
 
 
 // LABEL constants of the file.
-/**Name of the collection*/
-const COLLECTION = "users";
+
 // label For pagination: elements per page
 /*Pagination: Doc per page*/
 const DOC_PER_PAGE = 3;
-// Default key yo order the book.
+// Default key to order the book.
 const DEFAULT_ORDER = "title";
 
 // label: instances of class
 
 const dbConnection = GetCollection(db, COLLECTION);
 
-/**Get all documents, without exceptions.*/
+/**Get all documents, without conditions.*/
 export async function getAll() {
-    return GetDocs(SetQ)
+    return GetDocs(SetQuery(dbConnection));
 }
-
 
 /**
  * Return all the books from the database, between a index index.<br/>
@@ -61,7 +62,7 @@ export async function getAll(startFrom = 0, limit, orderBy, conditions = []) {
         const valueCondition = condition[2];
 
         return keyCondition && conditional && valueCondition &&
-            createQuery(keyCondition, conditional, valueCondition);
+            createQueryConndition(keyCondition, conditional, valueCondition);
     });
 
     // label Filter not null values
@@ -76,27 +77,13 @@ export async function getAll(startFrom = 0, limit, orderBy, conditions = []) {
         // label Check if limit exists
         limit = (!limit || limit < 1) ? DOC_PER_PAGE : limit;
 
-        queryDocs = setQuery(dbConnection, StartAt(startFrom),
+        queryDocs = SetQuery(dbConnection, StartAt(startFrom),
             Limit(limit), ...conditionsMapped, orderBy);
     } else {
         //    label in case limit was not applied
-        queryDocs = setQuery(dbConnection, StartAt(startFrom), ...conditionsMapped, orderBy);
+        queryDocs = SetQuery(dbConnection, StartAt(startFrom), ...conditionsMapped, OrderBy(orderBy));
     }
     return GetDocs(queryDocs);
-}
-
-/**Return a where condition from the given arguments.*/
-function createQuery(key, condition, value) {
-    return setWhere(key, condition, value);
-}
-
-/**Validate the document came from {@link Libro}*/
-function isCorrectDocument(book) {
-    return book instanceof Libro;
-}
-
-function showMessageNotValidInstance(message) {
-    return [false, message];
 }
 
 /**Create a book into the database.<br/>
@@ -110,7 +97,7 @@ export async function createDocument(book) {
         return showMessageNotValidInstance(message);
     }
 
-    return setDoc(dbConnection, book);
+    return AddDoc(dbConnection, getDocumentDataAsObject(book));
 }
 
 /**update the given {@link Libro} with its values, <i><strong>id is required</strong></i>.*/
@@ -126,7 +113,7 @@ export function updateDocument(book) {
     }
 
     /*label Check if the book contain values */
-    if (Object.keys(book).length === 0) {
+    if (book || Object.keys(book).length === 0) {
         message = validator.MESSAGE_NO_VALUES('libro');
     }
 
@@ -144,26 +131,48 @@ export function updateDocument(book) {
 
     /* label Check if the price is less than 0*/
     if (!price || price < 0) {
-        price = 0;
+        book.price = 0;
     }
 
     /*Set the values*/
-    return SetDoc(DocRef(dbConnection, COLLECTION, id), {
-        IMAGE_FIELD: image,
-        TITLE_FIELD: title,
-        AUTHOR_FIELD: author,
-        PRICE_FIELD: price
-    });
+    return SetDoc(DocRef(dbConnection, COLLECTION, id), getDocumentDataAsObject(book));
 
-    /**Delete the {@link Libro} with its given id.<br/> <strong>Does not contain validations</strong>.
-     * @param bookId the id of the book.*/
-    export function deteleDocument(bookId) {
-        if(!bookId || bookId.trim().length === 0){
-            return showMessageNotValidInstance('Insert a valid id')
-        }
+}
 
-        return DeleteDoc(DocRef(dbConnection, COLLECTION, bookId));
-
+/**Delete the {@link Libro} with its given id.<br/> <strong>Does not contain validations</strong>.
+ * @param bookId the id of the book.*/
+export function deteleDocument(bookId) {
+    if (!bookId || bookId.trim().length === 0) {
+        return showMessageNotValidInstance('Insert a valid id')
     }
 
+    return DeleteDoc(DocRef(dbConnection, COLLECTION, bookId));
+
+}
+
+// label not exported methods
+
+function getDocumentDataAsObject(book) {
+
+    return {
+        [IMAGE_FIELD]: book.image,
+        [TITLE_FIELD]: book.title,
+        [AUTHOR_FIELD]: book.author,
+        [PRICE_FIELD]: book.price
+    };
+}
+
+/**Return a where condition from the given arguments.*/
+function createQueryConndition(key, condition, value) {
+    return setWhere(key, condition, value);
+}
+
+/**Validate the document came from {@link Libro}*/
+function isCorrectDocument(book) {
+    return book instanceof Libro;
+}
+
+/**Create a invalid message error*/
+function showMessageNotValidInstance(message) {
+    return [false, message];
 }
