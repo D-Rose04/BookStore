@@ -1,9 +1,10 @@
-class Libro {
+export default class Libro {
     // label URL
     _image;
     _title;
     _author = Object;
     _price = Number;
+    _isValid = false;
 
     constructor() {
     }
@@ -38,5 +39,13 @@ class Libro {
 
     set price(value) {
         this._price = value;
+    }
+
+    get isValid() {
+        return this._isValid;
+    }
+
+    set isValid(value) {
+        this._isValid = value;
     }
 }
