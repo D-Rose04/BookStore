@@ -16,7 +16,6 @@ export function useFireContext() {
 
 export function FirebaseProvider({ children }) {
     const [currUser, setCurrUser] = useState();
-    const [logged, setLogged] = useState(false);
     const usersCol = collection(db, 'users');
 
     async function SignUp(email, pwd, name) {
@@ -50,8 +49,6 @@ export function FirebaseProvider({ children }) {
         SignIn,
         SignOut,
         SignUp,
-        logged,
-        setLogged,
         currUser,
         setCurrUser
     };

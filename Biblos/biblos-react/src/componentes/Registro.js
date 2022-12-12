@@ -3,12 +3,12 @@ import { useFireContext } from '../firebase/context/context';
 import './css/login.css';
 
 export default function Registro() {
-    const { SignUp} = useFireContext();
+    const {SignUp} = useFireContext();
     
     const [userInfo, setUserInfo] = useState({
         name: '',
         email: '',
-        password: '',
+        password: '',   
         confirmPassword: ''
     });
 
@@ -19,7 +19,6 @@ export default function Registro() {
 
     const handleSubmit = event =>{
         event.preventDefault();
-
     };
 
     const Register = async () => {
