@@ -82,6 +82,7 @@ img {
 	width: 960px;
 	margin: 0 auto;
 	padding: 0 10px;
+	min-height: 100vh ;
 	background: #1c1c1b url(images/templatemo_bg.jpg) repeat-y;
 }
 

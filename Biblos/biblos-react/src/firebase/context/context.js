@@ -5,9 +5,7 @@ import {
     createUserWithEmailAndPassword,
     onAuthStateChanged,
     signInWithEmailAndPassword,
-    signOut,
-    GoogleAuthProvider,
-    signInWithPopup
+    signOut
 } from 'firebase/auth';
 
 const FireBaseContext = React.createContext();
@@ -18,19 +16,23 @@ export function useFireContext() {
 
 export function FirebaseProvider({ children }) {
     const [currUser, setCurrUser] = useState();
-    const provider = new GoogleAuthProvider();
     const [logged, setLogged] = useState(false);
+    const usersCol = collection(db, 'users');
 
-    function SignUp(email, pwd) {
-        return createUserWithEmailAndPassword(auth, email, pwd);
+    async function SignUp(email, pwd, name) {
+        let newUserCredentials = createUserWithEmailAndPassword(auth, email, pwd);
+        if (newUserCredentials) {
+            await addDoc(usersCol, {
+                admin: false,
+                email: email,
+                name: name
+            });
+        }
+        return newUserCredentials;
     }
 
     function SignIn(email, pwd) {
         return signInWithEmailAndPassword(auth, email, pwd);
-    }
-
-    function SignInWithGoogle() {
-        return signInWithPopup(auth, provider);
     }
 
     function SignOut() {
@@ -46,7 +48,6 @@ export function FirebaseProvider({ children }) {
 
     const value = {
         SignIn,
-        SignInWithGoogle,
         SignOut,
         SignUp,
         logged,

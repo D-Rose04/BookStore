@@ -13,7 +13,6 @@ root.render(
     <FirebaseProvider>
       <App />
     </FirebaseProvider>
-
   </React.StrictMode>
 );
 
